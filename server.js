@@ -11,7 +11,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const nodeMailer = require('nodemailer');
-
+// Add this at the top of server.js
+const Room = require('./models/room');
 // Database Connections
 dbconnect().catch(err => {
     console.error('Failed to connect to Room Database:', err);
@@ -374,10 +375,17 @@ app.delete('/api/cart/remove/:id', async (req, res) => {
 // Maintain backward compatibility for /rooms endpoint
 app.get('/rooms', async (req, res) => {
     try {
+        console.log('Fetching rooms...');
         const rooms = await Room.find();
+        console.log('Rooms found:', rooms);
         res.json(rooms);
     } catch (error) {
-        res.status(500).send(error.message);
+        console.error('Error fetching rooms:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching rooms',
+            error: error.message
+        });
     }
 });
 
